@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  zrok-enable:
+    image: zrok
+    entrypoint: zrok-enable.bash
+    user: root
+    volumes:
+      - zrok_env:/mnt
+    environment:
+      HOME: /mnt
+      ZROK_ENABLE_TOKEN: "XXXXXX"
+      ZROK_ENVIRONMENT_NAME: "YYYYYYY"
+  zrok-share:
+    image: zrok
+    restart: unless-stopped
+    entrypoint: zrok-share.bash
+    user: root
+    volumes:
+      - zrok_env:/mnt
+    environment:
+      # internal configuration
+      HOME: /mnt  # zrok homedir in container
+
+      # most relevant options
+      ZROK_UNIQUE_NAME: "YYYYYYY"     # name is used to construct frontend domain name, e.g. "myapp" in "myapp.share.zrok.io"
+      ZROK_BACKEND_MODE: "proxy"   # web, caddy, drive, proxy
+      ZROK_TARGET: "ZZZZZZZ"         # backend target, is a path in container filesystem unless proxy mode
+      ZROK_INSECURE: "--insecure"       # "--insecure" if proxy target has unverifiable TLS server certificate
+
+volumes:
+  zrok_env:
